@@ -71,6 +71,7 @@ HidListener::~HidListener() {
 static Dart_Port listenerPort = 0;
 
 void NotifyDart(Dart_Port port, const void* work) {
+    if(port == 0) return;
     const intptr_t workAddr = reinterpret_cast<intptr_t>(work);
 
     Dart_CObject cObject;
