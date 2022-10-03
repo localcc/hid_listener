@@ -11,18 +11,27 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 # not be changed.
 set(PLUGIN_NAME "hid_listener_plugin")
 
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../shared" shared)
 # Define the plugin library target. Its name must not be changed (see comment
 # on PLUGIN_NAME above).
 #
 # Any new source files that you add to the plugin should be added here.
+
+get_filename_component(SHARED_INC ${CMAKE_CURRENT_SOURCE_DIR}/../shared ABSOLUTE)
+find_package(X11 REQUIRED)
+
 add_library(${PLUGIN_NAME} SHARED
-  "hid_listener_plugin.cc"
+  "${SHARED_INC}/dart-sdk/include/dart_api_dl.h"
+  "${SHARED_INC}/dart-sdk/include/dart_api_dl.c"
+  "hid_listener_plugin.cpp"
+  "hid_listener_plugin_linux.cpp"
+  "include/hid_listener/hid_listener_linux_conversion.h"
 )
 
 # Apply a standard set of build settings that are configured in the
 # application-level CMakeLists.txt. This can be removed for plugins that want
 # full control over build settings.
-apply_standard_settings(${PLUGIN_NAME})
+# apply_standard_settings(${PLUGIN_NAME})
 
 # Symbols are hidden by default to reduce the chance of accidental conflicts
 # between plugins. This should not be removed; any symbols that should be
@@ -33,10 +42,13 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 
 # Source include directories and library dependencies. Add any plugin-specific
 # dependencies here.
+include_directories(${SHARED_INC})
 target_include_directories(${PLUGIN_NAME} INTERFACE
-  "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
-target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
+  "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  ${SHARED_INC}
+  ${X11_INCLUDE_DIR})
+target_link_libraries(${PLUGIN_NAME} PRIVATE flutter ${X11_LIBRARIES} ${X11_Xi_LIB})
+# target_link_libraries(${PLUGIN_NAME} PRIVATE PkgConfig::GTK)
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an

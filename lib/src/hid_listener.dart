@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'hid_listener_bindings.dart' as bindings;
-export 'hid_listener_bindings.dart' show KeyboardEvent;
+export 'hid_listener_bindings.dart' show KeyboardEvent, HidListenerKeycodes;
 
 const String _libName = 'hid_listener_plugin';
 

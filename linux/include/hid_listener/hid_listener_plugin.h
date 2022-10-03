@@ -23,4 +23,26 @@ FLUTTER_PLUGIN_EXPORT void hid_listener_plugin_register_with_registrar(
 
 G_END_DECLS
 
+
+#if defined(__cplusplus)
+#include <thread>
+#include <X11/XKBlib.h>
+class FLUTTER_PLUGIN_EXPORT HidListener {
+public:
+    HidListener();
+    ~HidListener();
+
+private:
+    void WorkerThread();
+    std::thread m_workerThread;
+    bool m_rootInitializer;
+    bool m_running;
+    Display* m_display;
+    int m_xiOpcode;
+
+    static HidListener* listenerInstance;
+};
+#endif
+
+
 #endif  // FLUTTER_PLUGIN_HID_LISTENER_PLUGIN_H_

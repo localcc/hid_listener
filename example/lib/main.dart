@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
-
 import 'package:hid_listener/hid_listener.dart';
 
 void main() {
-  registerKeyboardListener((event) {
-    print("${event.vkCode}");
-  });
   runApp(const MyApp());
 }
 

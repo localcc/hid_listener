@@ -21,7 +21,7 @@ typedef void* DartApiEntry_function;
 DartApiEntry_function FindFunctionPointer(const DartApiEntry* entries,
                                           const char* name) {
   while (entries->name != NULL) {
-    if (strcmp(entries->name, name) == 0) return entries->function;
+    if (strcmp(entries->name, name) == 0) return (void*)entries->function; // making clang happy. TODO: solve this another way?
     entries++;
   }
   return NULL;

@@ -8,6 +8,7 @@ output: "lib/src/hid_listener_bindings.dart"
 headers:
   entry-points:
     - "shared/hid_listener_shared.h"
+    - "shared/hid_listener_keycodes.h"
   include-directives:
     - "**hid_listener**.h"
 preamble: |
