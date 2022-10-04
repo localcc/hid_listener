@@ -18,7 +18,6 @@ A new Flutter plugin project.
   s.preserve_paths = '../shared/module/module.modulemap'
 
   s.xcconfig = { 
-    'USER_HEADER_SEARCH_PATHS' => '"${PROJECT_DIR}/.."/Classes/Shared/**',
     'HEADER_SEARCH_PATHS' => __dir__ + '/../shared'
   }
 
