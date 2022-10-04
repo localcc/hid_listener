@@ -27,7 +27,7 @@ class HidListenerBindings {
           lookup)
       : _lookup = lookup;
 
-  void SetKeyboardListener(
+  bool SetKeyboardListener(
     int port,
   ) {
     return _SetKeyboardListener(
@@ -36,10 +36,10 @@ class HidListenerBindings {
   }
 
   late final _SetKeyboardListenerPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>(
+      _lookup<ffi.NativeFunction<ffi.Bool Function(Dart_Port)>>(
           'SetKeyboardListener');
   late final _SetKeyboardListener =
-      _SetKeyboardListenerPtr.asFunction<void Function(int)>();
+      _SetKeyboardListenerPtr.asFunction<bool Function(int)>();
 
   void InitializeDartAPI(
     ffi.Pointer<ffi.Void> data,

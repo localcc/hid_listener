@@ -113,13 +113,15 @@ void _initializeDartAPI() {
   }
 }
 
-int registerKeyboardListener(void Function(RawKeyEvent) listener) {
+int? registerKeyboardListener(void Function(RawKeyEvent) listener) {
   if (!_keyboardRegistered) {
     _initializeDartAPI();
     final requests = ReceivePort()..listen(keyboardProc);
     final int nativePort = requests.sendPort.nativePort;
 
-    _bindings.SetKeyboardListener(nativePort);
+    if (!_bindings.SetKeyboardListener(nativePort)) {
+      return null;
+    }
     _keyboardRegistered = true;
   }
 
