@@ -10,7 +10,7 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 
 # This value is used when generating builds using this plugin, so it must
 # not be changed
-set(PLUGIN_NAME "hid_listener_plugin")
+set(PLUGIN_NAME "hid_listener")
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../shared" shared)
 

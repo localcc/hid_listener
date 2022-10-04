@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'hid_listener_bindings.dart' as bindings;
 export 'hid_listener_bindings.dart' show KeyboardEvent, HidListenerKeycodes;
 
-const String _libName = 'hid_listener_plugin';
+const String _libName = 'hid_listener';
 
 final ffi.DynamicLibrary _dylib = () {
   if (Platform.isMacOS || Platform.isIOS) {

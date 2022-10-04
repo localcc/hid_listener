@@ -3,7 +3,7 @@
 # Run `pod lib lint hid_listener.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'hid_listener_plugin'
+  s.name             = 'hid_listener'
   s.version          = '0.0.1'
   s.summary          = 'A new Flutter plugin project.'
   s.description      = <<-DESC
