@@ -1,0 +1,4 @@
+module HidListenerShared [system] [extern_c] {
+    header "../hid_listener_shared.h"
+    export *
+}

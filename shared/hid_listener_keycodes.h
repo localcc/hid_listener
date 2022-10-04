@@ -15,7 +15,7 @@ enum HidListenerKeycodes
     VK_SHIFT = 0x10,               // SHIFT key
     VK_CONTROL = 0x11,             // CTRL key
     VK_MENU = 0x12,                // ALT key
-    VK_PAUSE = 0x13,               // PAUSE key
+    VK_PAUSE = 0x13,                // PAUSE key
     VK_CAPITAL = 0x14,             // CAPS LOCK key
     VK_KANA = 0x15,                // IME Kana mode
     VK_HANGUEL = 0x15,             // IME Hanguel mode (maintained for compatibility; use VK_HANGUL)

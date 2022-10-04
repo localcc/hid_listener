@@ -14,10 +14,17 @@ A new Flutter plugin project.
   s.author           = { 'Your Company' => 'email@example.com' }
 
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*'
+  s.source_files     = 'Classes/**/*', '../shared/**.{c,h}'
+  s.preserve_paths = '../shared/module/module.modulemap'
+
+  s.xcconfig = { 
+    'USER_HEADER_SEARCH_PATHS' => '"${PROJECT_DIR}/.."/Classes/Shared/**',
+    'HEADER_SEARCH_PATHS' => __dir__ + '/../shared'
+  }
+
   s.dependency 'FlutterMacOS'
 
   s.platform = :osx, '10.11'
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'SWIFT_INCLUDE_PATHS' => __dir__ + '/../shared/**' }
   s.swift_version = '5.0'
 end
