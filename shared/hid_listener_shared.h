@@ -39,6 +39,7 @@ extern "C"
 #endif
     FLUTTER_PLUGIN_EXPORT bool SetKeyboardListener(Dart_Port port);
     FLUTTER_PLUGIN_EXPORT void InitializeDartAPI(void* data);
+    FLUTTER_PLUGIN_EXPORT bool InitializeListeners();
 #if defined(__cplusplus)
 }
 #endif

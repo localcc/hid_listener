@@ -54,26 +54,16 @@ class HidListenerBindings {
           'InitializeDartAPI');
   late final _InitializeDartAPI =
       _InitializeDartAPIPtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  bool InitializeListeners() {
+    return _InitializeListeners();
+  }
+
+  late final _InitializeListenersPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function()>>('InitializeListeners');
+  late final _InitializeListeners =
+      _InitializeListenersPtr.asFunction<bool Function()>();
 }
-
-abstract class KeyboardEventType {
-  static const int KeyUp = 0;
-  static const int KeyDown = 1;
-}
-
-class KeyboardEvent extends ffi.Struct {
-  @ffi.Int32()
-  external int eventType;
-
-  @ffi.Uint32()
-  external int vkCode;
-
-  @ffi.Uint32()
-  external int scanCode;
-}
-
-/// A port is used to send or receive inter-isolate messages
-typedef Dart_Port = ffi.Int64;
 
 /// https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 abstract class HidListenerKeycodes {
@@ -602,3 +592,22 @@ abstract class HidListenerKeycodes {
   /// Clear key
   static const int VK_OEM_CLEAR = 254;
 }
+
+abstract class KeyboardEventType {
+  static const int KeyUp = 0;
+  static const int KeyDown = 1;
+}
+
+class KeyboardEvent extends ffi.Struct {
+  @ffi.Int32()
+  external int eventType;
+
+  @ffi.Uint32()
+  external int vkCode;
+
+  @ffi.Uint32()
+  external int scanCode;
+}
+
+/// A port is used to send or receive inter-isolate messages
+typedef Dart_Port = ffi.Int64;

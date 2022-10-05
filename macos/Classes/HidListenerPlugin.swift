@@ -9,34 +9,6 @@ public class HidListenerPlugin: NSObject, FlutterPlugin {
   }
 }
 
-var keyboardListenerPort: Dart_Port = 0
-
-func notifyDart(port: Dart_Port, data: UnsafeMutableRawPointer) {
-  if port == 0 {
-    return
-  }
-
-  var cObject = Dart_CObject()
-  cObject.type = Dart_CObject_kInt64
-  cObject.value.as_int64 = Int64(UInt(bitPattern: data))
-
-  let _ = Dart_PostCObject_DL(port, &cObject)
-}
-
-@_cdecl("SetKeyboardListener")
-func SetKeyboardListener(port: Dart_Port) -> Bool {
-  if !(listenerInstance?.initialized ?? false) {
-    return false
-  }
-  keyboardListenerPort = port
-  return true
-}
-
-@_cdecl("InitializeDartAPI")
-func InitializeDartAPI(data: UnsafeMutableRawPointer) {
-  Dart_InitializeApiDL(data)
-}
-
 var listenerInstance: HidListener? = nil
 
 var prevFlags = UInt64(256)
@@ -80,6 +52,11 @@ public class HidListener {
       return
     }
 
+    rootInitializer = true
+    listenerInstance = self
+  }
+
+  public func initialize() -> Bool {
     let eventMask =
       (1 << CGEventType.keyDown.rawValue)
       | (1 << CGEventType.keyUp.rawValue) | (1 << CGEventType.flagsChanged.rawValue)
@@ -89,7 +66,7 @@ public class HidListener {
         tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
         eventsOfInterest: CGEventMask(eventMask), callback: eventCallback, userInfo: nil)
     else {
-      return
+      return false
     }
 
     keyboardQueue.async {
@@ -100,8 +77,8 @@ public class HidListener {
     }
 
     initialized = true
-    rootInitializer = true
-    listenerInstance = self
+
+    return initialized
   }
 
   deinit {
@@ -109,4 +86,40 @@ public class HidListener {
       listenerInstance = nil
     }
   }
+}
+
+var keyboardListenerPort: Dart_Port = 0
+
+func notifyDart(port: Dart_Port, data: UnsafeMutableRawPointer) {
+  if port == 0 {
+    return
+  }
+
+  var cObject = Dart_CObject()
+  cObject.type = Dart_CObject_kInt64
+  cObject.value.as_int64 = Int64(UInt(bitPattern: data))
+
+  let _ = Dart_PostCObject_DL(port, &cObject)
+}
+
+@_cdecl("SetKeyboardListener")
+func SetKeyboardListener(port: Dart_Port) -> Bool {
+  if !(listenerInstance?.initialized ?? false) {
+    return false
+  }
+  keyboardListenerPort = port
+  return true
+}
+
+@_cdecl("InitializeDartAPI")
+func InitializeDartAPI(data: UnsafeMutableRawPointer) {
+  Dart_InitializeApiDL(data)
+}
+
+@_cdecl("InitializeListeners")
+func InitializeListeners() -> Bool {
+  if listenerInstance == nil {
+    listenerInstance = HidListener()
+  }
+  return listenerInstance?.initialize() ?? false
 }

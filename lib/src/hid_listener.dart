@@ -31,6 +31,7 @@ int _lastKeyboardListenerId = 0;
 
 bool _keyboardRegistered = false;
 bool _apiInitialized = false;
+bool _listenersInitialized = false;
 
 int _lAltPressed = 0;
 int _rAltPressed = 0;
@@ -113,15 +114,23 @@ void _initializeDartAPI() {
   }
 }
 
+bool _initializeListeners() {
+  if (!_listenersInitialized) {
+    _listenersInitialized = _bindings.InitializeListeners();
+  }
+  return _listenersInitialized;
+}
+
 int? registerKeyboardListener(void Function(RawKeyEvent) listener) {
   if (!_keyboardRegistered) {
     _initializeDartAPI();
     final requests = ReceivePort()..listen(keyboardProc);
     final int nativePort = requests.sendPort.nativePort;
 
-    if (!_bindings.SetKeyboardListener(nativePort)) {
+    if (!_initializeListeners() || !_bindings.SetKeyboardListener(nativePort)) {
       return null;
     }
+
     _keyboardRegistered = true;
   }
 
