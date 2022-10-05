@@ -24,7 +24,7 @@ func eventCallback(
     let keyboardEvent = UnsafeMutablePointer<KeyboardEvent>.allocate(capacity: 1)
 
     if type == .flagsChanged {
-      keyboardEvent.pointee.eventType = KeyboardEventType(prevFlags < event.flags.rawValue ? 0 : 1)
+      keyboardEvent.pointee.eventType = KeyboardEventType(prevFlags < event.flags.rawValue ? 1 : 0)
 
       prevFlags = event.flags.rawValue
     } else if type == .keyDown {
