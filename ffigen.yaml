@@ -1,7 +1,7 @@
 # Run with `flutter pub run ffigen --config ffigen.yaml`.
 name: HidListenerBindings
 description: |
-  Bindings for `src/testffi.h`.
+  Bindings for `shared/hid_listener_shared.h`.
 
   Regenerate bindings with `flutter pub run ffigen --config ffigen.yaml`.
 output: "lib/src/hid_listener_bindings.dart"

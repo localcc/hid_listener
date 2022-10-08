@@ -5,8 +5,9 @@ import 'dart:isolate';
 
 import 'package:flutter/services.dart';
 
-import 'hid_listener_bindings.dart' as bindings;
-export 'hid_listener_bindings.dart' show KeyboardEvent, HidListenerKeycodes;
+import 'hid_listener_bindings_wrapper.dart';
+import 'hid_listener_bindings_universal.dart' as bindings;
+export 'hid_listener_bindings_universal.dart' show KeyboardEvent, HidListenerKeycodes;
 
 const String _libName = 'hid_listener';
 
@@ -23,8 +24,15 @@ final ffi.DynamicLibrary _dylib = () {
   throw UnsupportedError('Unknown platform: ${Platform.operatingSystem}');
 }();
 
-final bindings.HidListenerBindings _bindings =
-    bindings.HidListenerBindings(_dylib);
+HidListenerBindingsWrapper initializeBindings(ffi.DynamicLibrary library) {
+  if(Platform.isMacOS || Platform.isIOS) {
+    return SwiftHidListenerBindings(library);
+  } else {
+    return UniversalHidListenerBindings(library);
+  }
+}
+
+final HidListenerBindingsWrapper _bindings = initializeBindings(_dylib);
 
 HashMap<int, void Function(RawKeyEvent)> keyboardListeners = HashMap.identity();
 int _lastKeyboardListenerId = 0;
@@ -109,14 +117,14 @@ void keyboardProc(dynamic event) {
 
 void _initializeDartAPI() {
   if (!_apiInitialized) {
-    _bindings.InitializeDartAPI(ffi.NativeApi.initializeApiDLData);
+    _bindings.initializeDartApi(ffi.NativeApi.initializeApiDLData);
     _apiInitialized = true;
   }
 }
 
 bool _initializeListeners() {
   if (!_listenersInitialized) {
-    _listenersInitialized = _bindings.InitializeListeners();
+    _listenersInitialized = _bindings.initializeListeners();
   }
   return _listenersInitialized;
 }
@@ -127,7 +135,7 @@ int? registerKeyboardListener(void Function(RawKeyEvent) listener) {
     final requests = ReceivePort()..listen(keyboardProc);
     final int nativePort = requests.sendPort.nativePort;
 
-    if (!_initializeListeners() || !_bindings.SetKeyboardListener(nativePort)) {
+    if (!_initializeListeners() || !_bindings.setKeyboardListener(nativePort)) {
       return null;
     }
 

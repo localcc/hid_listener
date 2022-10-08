@@ -14,11 +14,11 @@ A new Flutter plugin project.
   s.author           = { 'Your Company' => 'email@example.com' }
 
   s.source           = { :path => '.' }
-  s.source_files     = 'Classes/**/*', '../shared/**.{c,h}'
+  s.source_files     = 'Classes/**/*', '../shared/**/**.{c,h}'
   s.preserve_paths = '../shared/module/module.modulemap'
 
   s.xcconfig = { 
-    'HEADER_SEARCH_PATHS' => __dir__ + '/../shared'
+    'HEADER_SEARCH_PATHS' => __dir__ + '/../shared/**'
   }
 
   s.dependency 'FlutterMacOS'

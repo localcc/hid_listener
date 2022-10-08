@@ -4,7 +4,6 @@
 #include "hid_listener_keycodes.h"
 #include "dart-sdk/include/dart_native_api.h"
 #include "dart-sdk/include/dart_api_dl.h"
-#include "dart-sdk/include/dart_api_dl.c"
 
 #ifndef __APPLE__
 #ifndef FLUTTER_PLUGIN_EXPORT
