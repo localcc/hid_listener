@@ -10,7 +10,7 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 
 # This value is used when generating builds using this plugin, so it must
 # not be changed
-set(PLUGIN_NAME "hid_listener")
+set(PLUGIN_NAME "hid_listener_plugin")
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../shared" shared)
 
@@ -30,6 +30,8 @@ add_library(${PLUGIN_NAME} SHARED
   "${SHARED_INC}/dart-sdk/include/dart_api_dl.c"
   ${PLUGIN_SOURCES}
 )
+
+set_target_properties(${PLUGIN_NAME} PROPERTIES OUTPUT_NAME "hid_listener")
 
 # Apply a standard set of build settings that are configured in the
 # application-level CMakeLists.txt. This can be removed for plugins that want
