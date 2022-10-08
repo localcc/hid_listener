@@ -23,6 +23,8 @@ extern "C"
 		HidListener();
 		~HidListener();
 
+		static HidListener* Get() { return HidListener::listenerInstance; }
+
 	private:
 		HHOOK m_keyboardHook;
 

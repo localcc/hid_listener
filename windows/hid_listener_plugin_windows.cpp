@@ -61,7 +61,7 @@ HidListener::~HidListener() {
 #endif
 
 bool SetKeyboardListener(Dart_Port port) {
-	if(HidListener::listenerInstance == nullptr) return false;
+	if(HidListener::Get() == nullptr) return false;
 	listenerPort = port;
 	return true;
 }
