@@ -1,11 +1,17 @@
 name: hid_listener
-description: A new Flutter plugin project.
-version: 0.0.1
-homepage:
+description: A hid listening library for cross platform listening to keyboard/mouse events.
+version: 1.0.0
+homepage: https://github.com/localcc/hid_listener
+repository: https://github.com/localcc/hid_listener
 
 environment:
   sdk: ">=2.18.1 <3.0.0"
   flutter: ">=2.5.0"
+
+platforms:
+  windows:
+  linux:
+  macos:
 
 dependencies:
   flutter:

@@ -4,14 +4,14 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'hid_listener'
-  s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin project.'
+  s.version          = '1.0.0'
+  s.summary          = 'Hid Listening library'
   s.description      = <<-DESC
-A new Flutter plugin project.
+A hid listening library for cross platform listening to keyboard/mouse events.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://localcc.cc'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'localcc' => 'work@localcc.cc' }
 
   s.source           = { :path => '.' }
   s.source_files     = 'Classes/**/*', '../shared/**/**.{c,h}'
