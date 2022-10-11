@@ -9,7 +9,7 @@ project(${PROJECT_NAME} LANGUAGES CXX)
 
 # This value is used when generating builds using this plugin, so it must
 # not be changed.
-set(PLUGIN_NAME "hid_listener")
+set(PLUGIN_NAME "hid_listener_plugin")
 
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../shared" shared)
 # Define the plugin library target. Its name must not be changed (see comment
@@ -27,6 +27,8 @@ add_library(${PLUGIN_NAME} SHARED
   "hid_listener_plugin_linux.cpp"
   "include/hid_listener/hid_listener_linux_conversion.h"
 )
+
+set_target_properties(${PLUGIN_NAME} PROPERTIES OUTPUT_NAME "hid_listener")
 
 # Apply a standard set of build settings that are configured in the
 # application-level CMakeLists.txt. This can be removed for plugins that want

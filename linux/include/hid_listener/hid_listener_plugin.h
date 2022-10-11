@@ -32,6 +32,8 @@ public:
     HidListener();
     ~HidListener();
 
+    static HidListener *Get() { return HidListener::listenerInstance; }
+
 private:
     void WorkerThread();
     std::thread m_workerThread;

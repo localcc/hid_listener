@@ -112,11 +112,15 @@ void HidListener::WorkerThread() {
 }
 
 bool SetKeyboardListener(Dart_Port port) {
-    if(HidListener::listenerInstance == nullptr) return false;
+    if(HidListener::Get() == nullptr) return false;
     listenerPort = port;
     return true;
 }
 
 void InitializeDartAPI(void* data) {
     Dart_InitializeApiDL(data);
+}
+
+bool InitializeListeners() {
+    return true;
 }
