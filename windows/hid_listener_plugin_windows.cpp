@@ -70,6 +70,10 @@ void InitializeDartAPI(void* data) {
 	Dart_InitializeApiDL(data);
 }
 
+bool InitializeListeners() {
+	return true;
+}
+
 void HidListenerPluginWindowsRegisterWithRegistrar(
 	FlutterDesktopPluginRegistrarRef registrar) {
 	hid_listener::HidListenerPlugin::RegisterWithRegistrar(
