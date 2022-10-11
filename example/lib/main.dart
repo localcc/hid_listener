@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hid_listener/hid_listener.dart';
 
+void listener(RawKeyEvent event) {
+  print("${event is RawKeyDownEvent} ${event.logicalKey.keyLabel}");
+}
+
+var registerResult = "";
+
 void main() {
+  if (registerKeyboardListener(listener) == null) {
+    registerResult = "Failed to register listener";
+  }
   runApp(const MyApp());
 }
 
@@ -20,8 +30,8 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: const Center(
-          child: Text('Hi!'),
+        body: Center(
+          child: Text('${amongis}'),
         ),
       ),
     );
