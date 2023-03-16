@@ -1,6 +1,6 @@
 name: hid_listener
 description: A hid listening library for cross platform listening to keyboard/mouse events.
-version: 1.0.2
+version: 1.1.0
 homepage: https://github.com/localcc/hid_listener
 repository: https://github.com/localcc/hid_listener
 
