@@ -255,6 +255,7 @@ SWIFT_CLASS("_TtC12hid_listener19HidListenerBindings")
 + (void)InitializeDartAPIWithData:(void * _Nonnull)data;
 + (BOOL)InitializeListeners SWIFT_WARN_UNUSED_RESULT;
 + (BOOL)SetKeyboardListenerWithPort:(int64_t)port SWIFT_WARN_UNUSED_RESULT;
++ (BOOL)SetMouseListenerWithPort:(int64_t)port SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 

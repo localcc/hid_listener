@@ -6,6 +6,7 @@ abstract class HidListenerBindingsWrapper {
   void initializeDartApi(ffi.Pointer<ffi.Void> data);
   bool initializeListeners();
   bool setKeyboardListener(int port);
+  bool setMouseListener(int port);
 }
 
 class UniversalHidListenerBindings extends HidListenerBindingsWrapper {
@@ -27,15 +28,22 @@ class UniversalHidListenerBindings extends HidListenerBindingsWrapper {
     return _bindings.SetKeyboardListener(port);
   }
 
+  @override
+  bool setMouseListener(int port) {
+    return _bindings.SetMouseListener(port);
+  }
+
   final universal_bindings.HidListenerBindings _bindings;
 }
 
 class SwiftHidListenerBindings extends HidListenerBindingsWrapper {
-  SwiftHidListenerBindings(ffi.DynamicLibrary library) : _bindings = swift_bindings.HidListenerBindingsSwift(library);
+  SwiftHidListenerBindings(ffi.DynamicLibrary library)
+      : _bindings = swift_bindings.HidListenerBindingsSwift(library);
 
   @override
   void initializeDartApi(ffi.Pointer<ffi.Void> data) {
-    swift_bindings.HidListenerBindings.InitializeDartAPIWithData_(_bindings, data);
+    swift_bindings.HidListenerBindings.InitializeDartAPIWithData_(
+        _bindings, data);
   }
 
   @override
@@ -45,7 +53,14 @@ class SwiftHidListenerBindings extends HidListenerBindingsWrapper {
 
   @override
   bool setKeyboardListener(int port) {
-    return swift_bindings.HidListenerBindings.SetKeyboardListenerWithPort_(_bindings, port);
+    return swift_bindings.HidListenerBindings.SetKeyboardListenerWithPort_(
+        _bindings, port);
+  }
+
+  @override
+  bool setMouseListener(int port) {
+    return swift_bindings.HidListenerBindings.SetMouseListenerWithPort_(
+        _bindings, port);
   }
 
   final swift_bindings.HidListenerBindingsSwift _bindings;

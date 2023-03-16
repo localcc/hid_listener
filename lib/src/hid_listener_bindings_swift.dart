@@ -873,6 +873,8 @@ class HidListenerBindingsSwift {
   late final _sel_InitializeListeners1 = _registerName1("InitializeListeners");
   late final _sel_SetKeyboardListenerWithPort_1 =
       _registerName1("SetKeyboardListenerWithPort:");
+  late final _sel_SetMouseListenerWithPort_1 =
+      _registerName1("SetMouseListenerWithPort:");
   bool _objc_msgSend_34(
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
@@ -971,6 +973,12 @@ class HidListenerBindings extends NSObject {
       HidListenerBindingsSwift _lib, int port) {
     return _lib._objc_msgSend_34(_lib._class_HidListenerBindings1,
         _lib._sel_SetKeyboardListenerWithPort_1, port);
+  }
+
+  static bool SetMouseListenerWithPort_(
+      HidListenerBindingsSwift _lib, int port) {
+    return _lib._objc_msgSend_34(_lib._class_HidListenerBindings1,
+        _lib._sel_SetMouseListenerWithPort_1, port);
   }
 
   @override

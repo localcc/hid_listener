@@ -30,13 +30,33 @@ struct KeyboardEvent
     uint32_t scanCode;
 };
 
+enum MouseEventType
+{
+    LeftButtonDown,
+    LeftButtonUp,
+    RightButtonDown,
+    RightButtonUp,
+    MouseMove,
+    MouseWheel,
+    MouseHorizontalWheel
+};
+
+struct MouseEvent {
+    enum MouseEventType eventType;
+    double x;
+    double y;
+    int64_t wheelDelta;
+};
+
 typedef int (*KeyboardListener)(struct KeyboardEvent keyboardEvent);
+typedef int (*MouseListener)(struct MouseEvent mouseEvent);
 
 #if defined(__cplusplus)
 extern "C"
 {
 #endif
     FLUTTER_PLUGIN_EXPORT bool SetKeyboardListener(Dart_Port port);
+    FLUTTER_PLUGIN_EXPORT bool SetMouseListener(Dart_Port port);
     FLUTTER_PLUGIN_EXPORT void InitializeDartAPI(void* data);
     FLUTTER_PLUGIN_EXPORT bool InitializeListeners();
 #if defined(__cplusplus)

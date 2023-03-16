@@ -39,6 +39,9 @@ HidListener::HidListener() {
 
     XISetMask(mask.mask, XI_RawKeyPress);
     XISetMask(mask.mask, XI_RawKeyRelease);
+    XISetMask(mask.mask, XI_RawButtonPress);
+    XISetMask(mask.mask, XI_RawButtonRelease);
+    XISetMask(mask.mask, XI_RawMotion);
     XISelectEvents(display, root, &mask, 1);
     XSync(display, false);
     free(mask.mask);
@@ -68,7 +71,8 @@ HidListener::~HidListener() {
     listenerInstance = nullptr;
 }
 
-static Dart_Port listenerPort = 0;
+static Dart_Port keyboardListenerPort = 0;
+static Dart_Port mouseListenerPort = 0;
 
 void NotifyDart(Dart_Port port, const void* work) {
     if(port == 0) return;
@@ -103,8 +107,45 @@ void HidListener::WorkerThread() {
                         keyboardEvent->eventType =eventType;
                         keyboardEvent->vkCode = winKey;
                         keyboardEvent->scanCode = 0;
-                        NotifyDart(listenerPort, keyboardEvent);
+                        NotifyDart(keyboardListenerPort, keyboardEvent);
                     }
+                } else if (cookie->evtype == XI_RawButtonPress || cookie->evtype == XI_RawButtonRelease || cookie->evtype == XI_RawMotion) {
+                    XIRawEvent* rawEvent = (XIRawEvent*)cookie->data;
+
+                    int x, y;
+                    XQueryPointer(m_display, DefaultRootWindow(m_display), nullptr, nullptr, &x, &y, nullptr, nullptr, nullptr);
+
+                    MouseEvent* mouseEvent = new MouseEvent;
+                    mouseEvent->x = x;
+                    mouseEvent->y = y;
+
+                    if (rawEvent->detail == 0) {
+                        if (cookie->evtype == XI_RawButtonPress) {
+                            mouseEvent->eventType = MouseEventType::LeftButtonDown;
+                        } else if (cookie->evtype == XI_RawButtonRelease) {
+                            mouseEvent->eventType = MouseEventType::LeftButtonUp;
+                        }
+                    } else if (rawEvent->detail == 2) {
+                        if (cookie->evtype == XI_RawButtonPress) {
+                            mouseEvent->eventType = MouseEventType::RightButtonDown;
+                        } else if (cookie->evtype == XI_RawButtonRelease) {
+                            mouseEvent->eventType = MouseEventType::RightButtonUp;
+                        }
+                    } else if (rawEvent->detail == 4) {
+                        mouseEvent->eventType = MouseEventType::MouseWheel;
+                        mouseEvent->wheelDelta = -120;
+                    } else if (rawEvent->detail == 5) {
+                        mouseEvent->eventType = MouseEventType::MouseWheel;
+                        mouseEvent->wheelDelta = 120;
+                    } else if (rawEvent->detail == 6) {
+                        mouseEvent->eventType = MouseEventType::MouseHorizontalWheel;
+                        mouseEvent->wheelDelta = -120;
+                    } else if (rawEvent->detail == 7) {
+                        mouseEvent->eventType = MouseEventType::MouseHorizontalWheel;
+                        mouseEvent->wheelDelta = 120;
+                    }
+
+                    NotifyDart(mouseListenerPort, mouseEvent);
                 }
             }
         }
@@ -113,7 +154,13 @@ void HidListener::WorkerThread() {
 
 bool SetKeyboardListener(Dart_Port port) {
     if(HidListener::Get() == nullptr) return false;
-    listenerPort = port;
+    keyboardListenerPort = port;
+    return true;
+}
+
+bool SetMouseListener(Dart_Port port) {
+    if(HidListener::Get() == nullptr) return false;
+    mouseListenerPort = port;
     return true;
 }
 

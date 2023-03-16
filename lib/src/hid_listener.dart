@@ -7,7 +7,8 @@ import 'package:flutter/services.dart';
 
 import 'hid_listener_bindings_wrapper.dart';
 import 'hid_listener_bindings_universal.dart' as bindings;
-export 'hid_listener_bindings_universal.dart' show KeyboardEvent, HidListenerKeycodes;
+export 'hid_listener_bindings_universal.dart'
+    show KeyboardEvent, HidListenerKeycodes;
 
 const String _libName = 'hid_listener';
 
@@ -25,7 +26,7 @@ final ffi.DynamicLibrary _dylib = () {
 }();
 
 HidListenerBindingsWrapper initializeBindings(ffi.DynamicLibrary library) {
-  if(Platform.isMacOS || Platform.isIOS) {
+  if (Platform.isMacOS || Platform.isIOS) {
     return SwiftHidListenerBindings(library);
   } else {
     return UniversalHidListenerBindings(library);
@@ -34,10 +35,48 @@ HidListenerBindingsWrapper initializeBindings(ffi.DynamicLibrary library) {
 
 final HidListenerBindingsWrapper _bindings = initializeBindings(_dylib);
 
+class MouseEvent {
+  MouseEvent({required this.x, required this.y});
+  double x;
+  double y;
+}
+
+enum MouseButtonEventType {
+  leftButtonUp,
+  leftButtonDown,
+  rightButtonUp,
+  rightButtonDown,
+}
+
+class MouseButtonEvent extends MouseEvent {
+  MouseButtonEvent({required super.x, required super.y, required this.type});
+
+  MouseButtonEventType type;
+}
+
+class MouseMoveEvent extends MouseEvent {
+  MouseMoveEvent({required super.x, required super.y});
+}
+
+class MouseWheelEvent extends MouseEvent {
+  MouseWheelEvent(
+      {required super.x,
+      required super.y,
+      required this.wheelDelta,
+      required this.isHorizontal});
+
+  int wheelDelta;
+  bool isHorizontal;
+}
+
 HashMap<int, void Function(RawKeyEvent)> keyboardListeners = HashMap.identity();
+HashMap<int, void Function(MouseEvent)> mouseListeners = HashMap.identity();
 int _lastKeyboardListenerId = 0;
+int _lastMouseListenerId = 0;
 
 bool _keyboardRegistered = false;
+bool _mouseRegistered = false;
+
 bool _apiInitialized = false;
 bool _listenersInitialized = false;
 
@@ -115,6 +154,49 @@ void keyboardProc(dynamic event) {
   }
 }
 
+void mouseProc(dynamic event) {
+  final eventAddr = ffi.Pointer<bindings.MouseEvent>.fromAddress(event);
+
+  MouseEvent? mouseEvent;
+
+  if (eventAddr.ref.eventType == bindings.MouseEventType.LeftButtonDown) {
+    mouseEvent = MouseButtonEvent(
+        x: eventAddr.ref.x,
+        y: eventAddr.ref.y,
+        type: MouseButtonEventType.leftButtonDown);
+  } else if (eventAddr.ref.eventType == bindings.MouseEventType.LeftButtonUp) {
+    mouseEvent = MouseButtonEvent(
+        x: eventAddr.ref.x,
+        y: eventAddr.ref.y,
+        type: MouseButtonEventType.leftButtonUp);
+  } else if (eventAddr.ref.eventType ==
+      bindings.MouseEventType.RightButtonDown) {
+    mouseEvent = MouseButtonEvent(
+        x: eventAddr.ref.x,
+        y: eventAddr.ref.y,
+        type: MouseButtonEventType.rightButtonDown);
+  } else if (eventAddr.ref.eventType == bindings.MouseEventType.RightButtonUp) {
+    mouseEvent = MouseButtonEvent(
+        x: eventAddr.ref.x,
+        y: eventAddr.ref.y,
+        type: MouseButtonEventType.rightButtonUp);
+  } else if (eventAddr.ref.eventType == bindings.MouseEventType.MouseMove) {
+    mouseEvent = MouseMoveEvent(x: eventAddr.ref.x, y: eventAddr.ref.y);
+  } else if (eventAddr.ref.eventType == bindings.MouseEventType.MouseWheel ||
+      eventAddr.ref.eventType == bindings.MouseEventType.MouseHorizontalWheel) {
+    mouseEvent = MouseWheelEvent(
+        x: eventAddr.ref.x,
+        y: eventAddr.ref.y,
+        wheelDelta: eventAddr.ref.wheelDelta,
+        isHorizontal: eventAddr.ref.eventType ==
+            bindings.MouseEventType.MouseHorizontalWheel);
+  }
+
+  for (var listener in mouseListeners.values) {
+    listener(mouseEvent!);
+  }
+}
+
 void _initializeDartAPI() {
   if (!_apiInitialized) {
     _bindings.initializeDartApi(ffi.NativeApi.initializeApiDLData);
@@ -146,6 +228,28 @@ int? registerKeyboardListener(void Function(RawKeyEvent) listener) {
   return _lastKeyboardListenerId++;
 }
 
+int? registerMouseListener(void Function(MouseEvent) listener) {
+  if (!_mouseRegistered) {
+    _initializeDartAPI();
+
+    final requests = ReceivePort()..listen(mouseProc);
+    final int nativePort = requests.sendPort.nativePort;
+
+    if (!_initializeListeners() || !_bindings.setMouseListener(nativePort)) {
+      return null;
+    }
+
+    _mouseRegistered = true;
+  }
+
+  mouseListeners.addAll({_lastMouseListenerId: listener});
+  return _lastMouseListenerId++;
+}
+
 void unregisterKeyboardListener(int listenerId) {
   keyboardListeners.remove(listenerId);
+}
+
+void unregisterMouseListener(int listenerId) {
+  mouseListeners.remove(listenerId);
 }

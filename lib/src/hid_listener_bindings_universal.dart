@@ -41,6 +41,20 @@ class HidListenerBindings {
   late final _SetKeyboardListener =
       _SetKeyboardListenerPtr.asFunction<bool Function(int)>();
 
+  bool SetMouseListener(
+    int port,
+  ) {
+    return _SetMouseListener(
+      port,
+    );
+  }
+
+  late final _SetMouseListenerPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(Dart_Port)>>(
+          'SetMouseListener');
+  late final _SetMouseListener =
+      _SetMouseListenerPtr.asFunction<bool Function(int)>();
+
   void InitializeDartAPI(
     ffi.Pointer<ffi.Void> data,
   ) {
@@ -607,6 +621,30 @@ class KeyboardEvent extends ffi.Struct {
 
   @ffi.Uint32()
   external int scanCode;
+}
+
+abstract class MouseEventType {
+  static const int LeftButtonDown = 0;
+  static const int LeftButtonUp = 1;
+  static const int RightButtonDown = 2;
+  static const int RightButtonUp = 3;
+  static const int MouseMove = 4;
+  static const int MouseWheel = 5;
+  static const int MouseHorizontalWheel = 6;
+}
+
+class MouseEvent extends ffi.Struct {
+  @ffi.Int32()
+  external int eventType;
+
+  @ffi.Double()
+  external double x;
+
+  @ffi.Double()
+  external double y;
+
+  @ffi.Int64()
+  external int wheelDelta;
 }
 
 /// A port is used to send or receive inter-isolate messages

@@ -5,7 +5,7 @@ var listenerInstance: HidListener? = nil
 
 var prevFlags = UInt64(256)
 
-func eventCallback(
+func keyboardEventCallback(
   proxy: CGEventTapProxy, type: CGEventType, event: CGEvent, _: UnsafeMutableRawPointer?
 ) -> Unmanaged<CGEvent>? {
 
@@ -34,6 +34,44 @@ func eventCallback(
   return Unmanaged.passRetained(event)
 }
 
+func mouseEventCallback(
+  proxy: CGEventTapProxy, type: CGEventType, event: CGEvent, _: UnsafeMutableRawPointer?
+) -> Unmanaged<CGEvent>? {
+
+  let mouseLoc = NSEvent.mouseLocation
+  let mouseEvent = UnsafeMutablePointer<MouseEvent>.allocate(capacity: 1)
+
+  mouseEvent.pointee.x = mouseLoc.x
+  mouseEvent.pointee.y = mouseLoc.y
+
+  if type == .leftMouseDown {
+    mouseEvent.pointee.eventType = MouseEventType(0)
+  } else if type == .leftMouseUp {
+    mouseEvent.pointee.eventType = MouseEventType(1)
+  } else if type == .rightMouseDown {
+    mouseEvent.pointee.eventType = MouseEventType(2)
+  } else if type == .rightMouseUp {
+    mouseEvent.pointee.eventType = MouseEventType(3)
+  } else if type == .mouseMoved {
+    mouseEvent.pointee.eventType = MouseEventType(4)
+  } else if type == .scrollWheel {
+    let verticalScroll = event.getIntegerValueField(.scrollWheelEventDeltaAxis1)
+    let horizontalScroll = event.getIntegerValueField(.scrollWheelEventDeltaAxis2)
+
+    if verticalScroll != 0 {
+      mouseEvent.pointee.eventType = MouseEventType(5)
+      mouseEvent.pointee.wheelDelta = verticalScroll
+    } else if horizontalScroll != 0 {
+      mouseEvent.pointee.eventType = MouseEventType(6)
+      mouseEvent.pointee.wheelDelta = horizontalScroll
+    }
+  }
+
+  notifyDart(port: mouseListenerPort, data: mouseEvent)
+
+  return Unmanaged.passRetained(event)
+}
+
 public class HidListener {
   let keyboardQueue = DispatchQueue(label: "HidListener Keyboard Queue")
   var initialized = false
@@ -49,22 +87,38 @@ public class HidListener {
   }
 
   public func initialize() -> Bool {
-    let eventMask =
+    let keyboardEventMask =
       (1 << CGEventType.keyDown.rawValue)
       | (1 << CGEventType.keyUp.rawValue) | (1 << CGEventType.flagsChanged.rawValue)
 
     guard
-      let eventTap = CGEvent.tapCreate(
+      let keyboardEventTap = CGEvent.tapCreate(
         tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
-        eventsOfInterest: CGEventMask(eventMask), callback: eventCallback, userInfo: nil)
+        eventsOfInterest: CGEventMask(keyboardEventMask), callback: keyboardEventCallback, userInfo: nil)
+    else {
+      return false
+    }
+
+    let mouseEventMask = 
+      (1 << CGEventType.leftMouseDown.rawValue) | (1 << CGEventType.leftMouseUp.rawValue) |
+      (1 << CGEventType.rightMouseDown.rawValue) | (1 << CGEventType.rightMouseUp.rawValue) |
+      (1 << CGEventType.mouseMoved.rawValue) | (1 << CGEventType.scrollWheel.rawValue)      
+
+    guard
+      let mouseEventTap = CGEvent.tapCreate(
+        tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
+        eventsOfInterest: CGEventMask(mouseEventMask), callback: mouseEventCallback, userInfo: nil)
     else {
       return false
     }
 
     keyboardQueue.async {
-      let runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
-      CFRunLoopAddSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
-      CGEvent.tapEnable(tap: eventTap, enable: true)
+      let keyboardRunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, keyboardEventTap, 0)
+      let mouseRunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, mouseEventTap, 0)
+      CFRunLoopAddSource(CFRunLoopGetCurrent(), keyboardRunLoopSource, .commonModes)
+      CFRunLoopAddSource(CFRunLoopGetCurrent(), mouseRunLoopSource, .commonModes)
+      CGEvent.tapEnable(tap: keyboardEventTap, enable: true)
+      CGEvent.tapEnable(tap: mouseEventTap, enable: true)
       CFRunLoopRun()
     }
 
@@ -81,6 +135,7 @@ public class HidListener {
 }
 
 var keyboardListenerPort: Dart_Port = 0
+var mouseListenerPort: Dart_Port = 0
 
 func notifyDart(port: Dart_Port, data: UnsafeMutableRawPointer) {
   if port == 0 {
@@ -99,6 +154,14 @@ func Internal_SetKeyboardListener(port: Dart_Port) -> Bool {
     return false
   }
   keyboardListenerPort = port
+  return true
+}
+
+func Internal_SetMouseListener(port: Dart_Port) -> Bool {
+  if !(listenerInstance?.initialized ?? false) {
+    return false
+  }
+  mouseListenerPort = port
   return true
 }
 
@@ -125,5 +188,9 @@ func Internal_InitializeListeners() -> Bool {
 
   @objc public static func SetKeyboardListener(port: Dart_Port) -> Bool {
     return Internal_SetKeyboardListener(port: port)
+  }
+
+  @objc public static func SetMouseListener(port: Dart_Port) -> Bool {
+    return Internal_SetMouseListener(port: port)
   }
 }

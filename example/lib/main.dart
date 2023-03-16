@@ -6,11 +6,18 @@ void listener(RawKeyEvent event) {
   print("${event is RawKeyDownEvent} ${event.logicalKey.keyLabel}");
 }
 
+void mouseListener(MouseEvent event) {
+  print("${event}");
+}
+
 var registerResult = "";
 
 void main() {
   if (registerKeyboardListener(listener) == null) {
-    registerResult = "Failed to register listener";
+    registerResult = "Failed to register keyboard listener";
+  }
+  if (registerMouseListener(mouseListener) == null) {
+    registerResult = "Failed to register mouse listener";
   }
   runApp(const MyApp());
 }

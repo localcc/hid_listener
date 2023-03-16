@@ -27,6 +27,7 @@ extern "C"
 
 	private:
 		HHOOK m_keyboardHook;
+		HHOOK m_mouseHook;
 
 		static HidListener* listenerInstance;
 	};
