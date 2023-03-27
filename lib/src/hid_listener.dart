@@ -192,8 +192,10 @@ void mouseProc(dynamic event) {
             bindings.MouseEventType.MouseHorizontalWheel);
   }
 
+  if (mouseEvent == null) return;
+
   for (var listener in mouseListeners.values) {
-    listener(mouseEvent!);
+    listener(mouseEvent);
   }
 }
 

@@ -112,20 +112,15 @@ void HidListener::WorkerThread() {
                 } else if (cookie->evtype == XI_RawButtonPress || cookie->evtype == XI_RawButtonRelease || cookie->evtype == XI_RawMotion) {
                     XIRawEvent* rawEvent = (XIRawEvent*)cookie->data;
 
-                    int x, y;
-                    XQueryPointer(m_display, DefaultRootWindow(m_display), nullptr, nullptr, &x, &y, nullptr, nullptr, nullptr);
-
                     MouseEvent* mouseEvent = new MouseEvent;
-                    mouseEvent->x = x;
-                    mouseEvent->y = y;
 
-                    if (rawEvent->detail == 0) {
+                    if (rawEvent->detail == 1) {
                         if (cookie->evtype == XI_RawButtonPress) {
                             mouseEvent->eventType = MouseEventType::LeftButtonDown;
                         } else if (cookie->evtype == XI_RawButtonRelease) {
                             mouseEvent->eventType = MouseEventType::LeftButtonUp;
                         }
-                    } else if (rawEvent->detail == 2) {
+                    } else if (rawEvent->detail == 3) {
                         if (cookie->evtype == XI_RawButtonPress) {
                             mouseEvent->eventType = MouseEventType::RightButtonDown;
                         } else if (cookie->evtype == XI_RawButtonRelease) {
@@ -144,6 +139,19 @@ void HidListener::WorkerThread() {
                         mouseEvent->eventType = MouseEventType::MouseHorizontalWheel;
                         mouseEvent->wheelDelta = 120;
                     }
+                    
+                    if (cookie->evtype == XI_RawMotion) {
+                        mouseEvent->eventType = MouseEventType::MouseMove;
+                    }
+
+
+                    Window _unusedWindow;
+                    int _unusedInt;
+                    int x, y;
+                    XQueryPointer(m_display, DefaultRootWindow(m_display), (Window*)&_unusedWindow, (Window*)&_unusedWindow, &x, &y, &_unusedInt, &_unusedInt, (unsigned int*)&_unusedInt);
+
+                    mouseEvent->x = x;
+                    mouseEvent->y = y;
 
                     NotifyDart(mouseListenerPort, mouseEvent);
                 }
