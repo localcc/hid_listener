@@ -1,3 +1,7 @@
+## 1.1.2
+
+Fixed media keys on linux+macos.
+
 ## 1.1.1
 
 Fixed crash when moving mouse on linux
