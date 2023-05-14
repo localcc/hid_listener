@@ -34,6 +34,36 @@ func keyboardEventCallback(
   return Unmanaged.passRetained(event)
 }
 
+func mediaEventCallback(
+  proxy: CGEventTapProxy, type: CGEventType, event: CGEvent, _: UnsafeMutableRawPointer?
+) -> Unmanaged<CGEvent>? {
+  if let nsEvent = NSEvent(cgEvent: event) {
+    let keyCode = (nsEvent.data1 & 0xffff0000) >> 16
+    let keyDown = ((nsEvent.data1 & 0xff00) >> 8) == 0xa;
+
+    let translatedVkCode = {
+      switch Int32(keyCode) {
+        case NX_KEYTYPE_PLAY: return HL_VK_MEDIA_PLAY_PAUSE
+        case NX_KEYTYPE_PREVIOUS: return HL_VK_MEDIA_PREV_TRACK
+        case NX_KEYTYPE_NEXT: return HL_VK_MEDIA_NEXT_TRACK
+        default: return HidListenerKeycodes(0)
+      }
+    }().rawValue;
+
+    if translatedVkCode != 0 {
+      let keyboardEvent = UnsafeMutablePointer<KeyboardEvent>.allocate(capacity: 1)
+
+      keyboardEvent.pointee.eventType = KeyboardEventType(keyDown ? 1 : 0)
+      keyboardEvent.pointee.vkCode = translatedVkCode
+      keyboardEvent.pointee.scanCode = 0
+
+      notifyDart(port: keyboardListenerPort, data: keyboardEvent)
+    }
+  }
+
+  return Unmanaged.passRetained(event)
+}
+
 func mouseEventCallback(
   proxy: CGEventTapProxy, type: CGEventType, event: CGEvent, _: UnsafeMutableRawPointer?
 ) -> Unmanaged<CGEvent>? {
@@ -99,6 +129,14 @@ public class HidListener {
       return false
     }
 
+    guard
+      let mediaEventTap = CGEvent.tapCreate(
+        tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
+        eventsOfInterest: CGEventMask(1 << NX_SYSDEFINED), callback: mediaEventCallback, userInfo: nil)
+    else {
+      return false
+    }
+
     let mouseEventMask = 
       (1 << CGEventType.leftMouseDown.rawValue) | (1 << CGEventType.leftMouseUp.rawValue) |
       (1 << CGEventType.rightMouseDown.rawValue) | (1 << CGEventType.rightMouseUp.rawValue) |
@@ -114,10 +152,13 @@ public class HidListener {
 
     keyboardQueue.async {
       let keyboardRunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, keyboardEventTap, 0)
+      let mediaRunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, mediaEventTap, 0)
       let mouseRunLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, mouseEventTap, 0)
       CFRunLoopAddSource(CFRunLoopGetCurrent(), keyboardRunLoopSource, .commonModes)
+      CFRunLoopAddSource(CFRunLoopGetCurrent(), mediaRunLoopSource, .commonModes)
       CFRunLoopAddSource(CFRunLoopGetCurrent(), mouseRunLoopSource, .commonModes)
       CGEvent.tapEnable(tap: keyboardEventTap, enable: true)
+      CGEvent.tapEnable(tap: mediaEventTap, enable: true)
       CGEvent.tapEnable(tap: mouseEventTap, enable: true)
       CFRunLoopRun()
     }
