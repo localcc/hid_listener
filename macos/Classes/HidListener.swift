@@ -82,7 +82,7 @@ func mouseEventCallback(
     mouseEvent.pointee.eventType = MouseEventType(2)
   } else if type == .rightMouseUp {
     mouseEvent.pointee.eventType = MouseEventType(3)
-  } else if type == .mouseMoved {
+  } else if type == .mouseMoved || type == .leftMouseDragged || type == .rightMouseDragged {
     mouseEvent.pointee.eventType = MouseEventType(4)
   } else if type == .scrollWheel {
     let verticalScroll = event.getIntegerValueField(.scrollWheelEventDeltaAxis1)
@@ -140,8 +140,9 @@ public class HidListener {
     let mouseEventMask = 
       (1 << CGEventType.leftMouseDown.rawValue) | (1 << CGEventType.leftMouseUp.rawValue) |
       (1 << CGEventType.rightMouseDown.rawValue) | (1 << CGEventType.rightMouseUp.rawValue) |
-      (1 << CGEventType.mouseMoved.rawValue) | (1 << CGEventType.scrollWheel.rawValue)      
-
+      (1 << CGEventType.mouseMoved.rawValue) | (1 << CGEventType.scrollWheel.rawValue) |
+      (1 << CGEventType.leftMouseDragged.rawValue) | (1 << CGEventType.rightMouseDragged.rawValue)
+    
     guard
       let mouseEventTap = CGEvent.tapCreate(
         tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
