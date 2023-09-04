@@ -3,7 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:hid_listener/hid_listener.dart';
 
 void listener(RawKeyEvent event) {
-  print("${event is RawKeyDownEvent} ${event.logicalKey.keyLabel}");
+  print(
+      "${event is RawKeyDownEvent} ${event.logicalKey.debugName} ${event.isShiftPressed} ${event.isAltPressed}");
 }
 
 void mouseListener(MouseEvent event) {
@@ -13,12 +14,13 @@ void mouseListener(MouseEvent event) {
 var registerResult = "";
 
 void main() {
-  if (registerKeyboardListener(listener) == null) {
-    registerResult = "Failed to register keyboard listener";
+  if (!getListenerBackend().initialize()) {
+    print("Failed to initialize listener backend");
   }
-  if (registerMouseListener(mouseListener) == null) {
-    registerResult = "Failed to register mouse listener";
-  }
+
+  getListenerBackend().addKeyboardListener(listener);
+  getListenerBackend().addMouseListener(mouseListener);
+
   runApp(const MyApp());
 }
 

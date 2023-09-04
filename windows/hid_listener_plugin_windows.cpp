@@ -1,12 +1,12 @@
 #include "include/hid_listener/hid_listener_plugin_windows.h"
 
+#include <hid_listener_windows.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <dart-sdk/include/dart_native_api.h>
 #include <dart-sdk/include/dart_api_dl.h>
 #include <dart-sdk/include/dart_api_dl.c>
 
 #include <functional>
-
 #include "hid_listener_plugin.h"
 
 static Dart_Port keyboardListenerPort = 0;
@@ -25,15 +25,15 @@ void NotifyDart(Dart_Port port, const void* work) {
 static LRESULT KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
 	if (nCode < 0 || keyboardListenerPort == 0 || Dart_PostCObject_DL == nullptr) return CallNextHookEx(NULL, nCode, wParam, lParam);
 
-	KeyboardEventType eventType = KeyboardEventType::KeyDown;
+	WindowsKeyboardEventType eventType = WindowsKeyboardEventType::WKE_KeyDown;
 
 	if (wParam == WM_SYSKEYUP || wParam == WM_KEYUP) {
-		eventType = KeyboardEventType::KeyUp;
+		eventType = WindowsKeyboardEventType::WKE_KeyUp;
 	}
 
 	KBDLLHOOKSTRUCT* info = reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam);
 
-	KeyboardEvent* keyboardEvent = new KeyboardEvent;
+	WindowsKeyboardEvent* keyboardEvent = new WindowsKeyboardEvent;
 	keyboardEvent->eventType = eventType;
 	keyboardEvent->vkCode = info->vkCode; 
 	keyboardEvent->scanCode = info->scanCode;

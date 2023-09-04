@@ -49,6 +49,7 @@ target_compile_definitions(${PLUGIN_NAME} PRIVATE FLUTTER_PLUGIN_IMPL)
 # dependencies here.
 
 include_directories(${SHARED_INC})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(${PLUGIN_NAME} INTERFACE
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
   ${SHARED_INC})
