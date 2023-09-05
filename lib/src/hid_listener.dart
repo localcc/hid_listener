@@ -4,6 +4,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+
+import 'package:hid_listener/src/macos/hid_listener_macos.dart';
 import 'package:hid_listener/src/windows/hid_listener_windows.dart';
 
 import 'hid_listener_types.dart';
@@ -78,6 +80,7 @@ abstract class HidListenerBackend {
 
 HidListenerBackend _createPlatformBackend() {
   if (Platform.isWindows) return WindowsHidListenerBackend(_dylib);
+  if (Platform.isMacOS) return MacOsHidListenerBackend(_dylib);
   throw AssertionError();
 }
 

@@ -1,14 +1,18 @@
 name: HidListenerBindingsSwift
 description: |
   Bindings for 'macos/Bindings/HidListener.h'
-output: "lib/src/hid_listener_bindings_swift.dart"
+output: "lib/src/macos/hid_listener_bindings_macos.dart"
 language: objc
 exclude-all-by-default: true
 objc-interfaces:
   include:
     - "HidListenerBindings"
+    - "MacOsKeyboardEventType"
+    - "MacOsKeyboardEvent"
   module:
     "HidListenerBindings": "hid_listener"
+    "MacOsKeyboardEventType": "hid_listener"
+    "MacOsKeyboardEvent": "hid_listener"
 headers:
   entry-points:
     - "macos/Bindings/HidListener.h"
