@@ -1,3 +1,9 @@
+## 2.0.0
+
+Keyboard events are now platform-aware and no longer require a correct remapping table in the backend to work properly.
+
+Backend initialization is now explicit and controlled by user.
+
 ## 1.1.2
 
 Fixed media keys on linux+macos.

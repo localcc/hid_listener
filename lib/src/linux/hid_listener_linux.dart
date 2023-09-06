@@ -51,24 +51,29 @@ class LinuxHidListenerBackend extends HidListenerBackend {
         isDown: pressed == 0xffffffff,
         modifiers: 0);
 
-    if (firstEventData.logicalKey == LogicalKeyboardKey.capsLock)
+    if (firstEventData.logicalKey == LogicalKeyboardKey.capsLock) {
       _capslockEnabled = ~_capslockEnabled;
+    }
 
     if (firstEventData.logicalKey == LogicalKeyboardKey.altLeft ||
-        firstEventData.logicalKey == LogicalKeyboardKey.altRight)
+        firstEventData.logicalKey == LogicalKeyboardKey.altRight) {
       _altPressed = pressed;
+    }
 
     if (firstEventData.logicalKey == LogicalKeyboardKey.controlLeft ||
-        firstEventData.logicalKey == LogicalKeyboardKey.controlRight)
+        firstEventData.logicalKey == LogicalKeyboardKey.controlRight) {
       _controlPressed = pressed;
+    }
 
     if (firstEventData.logicalKey == LogicalKeyboardKey.metaLeft ||
-        firstEventData.logicalKey == LogicalKeyboardKey.metaRight)
+        firstEventData.logicalKey == LogicalKeyboardKey.metaRight) {
       _metaPressed = pressed;
+    }
 
     if (firstEventData.logicalKey == LogicalKeyboardKey.shiftLeft ||
-        firstEventData.logicalKey == LogicalKeyboardKey.shiftRight)
+        firstEventData.logicalKey == LogicalKeyboardKey.shiftRight) {
       _shiftPressed = pressed;
+    }
 
     final modifiers = (GtkKeyHelper.modifierCapsLock & _capslockEnabled) |
         (GtkKeyHelper.modifierMod1 & _altPressed) |
@@ -106,7 +111,7 @@ class LinuxHidListenerBackend extends HidListenerBackend {
     }
   }
 
-  bindings.HidListenerBindingsLinux _bindings;
+  final bindings.HidListenerBindingsLinux _bindings;
 
   int _capslockEnabled = 0;
   int _altPressed = 0;

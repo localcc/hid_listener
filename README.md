@@ -58,13 +58,32 @@ HidListener listener;
 
 ## Dart
 
-To register for keyboard events from the dart side use `registerKeyboardListener`
-
-Example:
+To use the library, you first have to initialize the listener backend:
 
 ```dart
-registerKeyboardListener((event) {
-  print("${event.logicalKey.keyLabel}");
-});
+if (getListenerBackend() != null) {
+  if (!getListenerBackend().initialize()) {
+    print("Failed to initialize listener backend");
+  }
+} else {
+  print("No listener backend for this platform")
+}
 ```
+
+After successfully initializing the listener backend, register listeners like this:
+
+```dart
+final keyboardListenerId = getListenerBackend()!.addKeyboardListener((event) {
+  print("${event.logicalKey.debugName}")
+});
+
+getListenerBackend()!.addMouseListener((event) { ... })
+```
+
+Removing listeners can be done using `remove(keyboard/Mouse)Listener` method call:
+
+```dart
+getListenerBackend()!.removeKeyboardListener(keyboardListenerId);
+```
+
 
