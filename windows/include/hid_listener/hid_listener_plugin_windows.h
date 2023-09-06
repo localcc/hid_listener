@@ -4,12 +4,6 @@
 #include <hid_listener_shared.h>
 #include <flutter_plugin_registrar.h>
 
-#ifdef FLUTTER_PLUGIN_IMPL
-#define FLUTTER_PLUGIN_EXPORT __declspec(dllexport)
-#else
-#define FLUTTER_PLUGIN_EXPORT __declspec(dllimport)
-#endif
-
 #if defined(__cplusplus)
 extern "C"
 {
