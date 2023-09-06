@@ -25,7 +25,6 @@ add_library(${PLUGIN_NAME} SHARED
   "${SHARED_INC}/dart-sdk/include/dart_api_dl.c"
   "hid_listener_plugin.cpp"
   "hid_listener_plugin_linux.cpp"
-  "include/hid_listener/hid_listener_linux_conversion.h"
 )
 
 set_target_properties(${PLUGIN_NAME} PROPERTIES OUTPUT_NAME "hid_listener")

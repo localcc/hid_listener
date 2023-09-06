@@ -4,7 +4,7 @@ import 'package:hid_listener/hid_listener.dart';
 
 void listener(RawKeyEvent event) {
   print(
-      "${event is RawKeyDownEvent} ${event.logicalKey.debugName} ${event.isShiftPressed} ${event.isAltPressed}");
+      "${event is RawKeyDownEvent} ${event.logicalKey.debugName} ${event.isShiftPressed} ${event.isAltPressed} ${event.isControlPressed}");
 }
 
 void mouseListener(MouseEvent event) {
@@ -14,12 +14,12 @@ void mouseListener(MouseEvent event) {
 var registerResult = "";
 
 void main() {
-  if (!getListenerBackend().initialize()) {
+  if (!getListenerBackend()!.initialize()) {
     print("Failed to initialize listener backend");
   }
 
-  getListenerBackend().addKeyboardListener(listener);
-  getListenerBackend().addMouseListener(mouseListener);
+  getListenerBackend()!.addKeyboardListener(listener);
+  getListenerBackend()!.addMouseListener(mouseListener);
 
   runApp(const MyApp());
 }

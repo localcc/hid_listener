@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import 'package:hid_listener/src/macos/hid_listener_macos.dart';
 import 'package:hid_listener/src/windows/hid_listener_windows.dart';
+import 'package:hid_listener/src/linux/hid_listener_linux.dart';
 
 import 'hid_listener_types.dart';
 export 'hid_listener_types.dart'
@@ -78,14 +79,15 @@ abstract class HidListenerBackend {
   bool _mouseRegistered = false;
 }
 
-HidListenerBackend _createPlatformBackend() {
+HidListenerBackend? _createPlatformBackend() {
   if (Platform.isWindows) return WindowsHidListenerBackend(_dylib);
   if (Platform.isMacOS) return MacOsHidListenerBackend(_dylib);
-  throw AssertionError();
+  if (Platform.isLinux) return LinuxHidListenerBackend(_dylib);
+  return null;
 }
 
-HidListenerBackend _backend = _createPlatformBackend();
+HidListenerBackend? _backend = _createPlatformBackend();
 
-HidListenerBackend getListenerBackend() {
+HidListenerBackend? getListenerBackend() {
   return _backend;
 }

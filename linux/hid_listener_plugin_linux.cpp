@@ -1,9 +1,11 @@
 #include "include/hid_listener/hid_listener_plugin.h"
-#include "include/hid_listener/hid_listener_linux_conversion.h"
-#include <hid_listener_shared.h>
+#include "hid_listener_linux.h"
 
 #include <X11/XKBlib.h>
 #include <X11/extensions/XInput2.h>
+
+#include <gtk/gtk.h>
+#include <gdk/gdkx.h>
 
 #include <dart-sdk/include/dart_native_api.h>
 #include <dart-sdk/include/dart_api_dl.h>
@@ -11,6 +13,9 @@
 
 #include <stdexcept>
 #include <string>
+
+// Keycodes lie in the inclusive range [8,255]
+const int KEYCODE_OFFSET = 8;
 
 HidListener* HidListener::listenerInstance = nullptr;
 
@@ -54,6 +59,7 @@ HidListener::HidListener() {
     m_xiOpcode = xiOpcode;
     m_display = display;
 
+    XInitThreads();
     m_running = true;
     m_workerThread = std::thread([&] {
         this->WorkerThread();
@@ -95,20 +101,33 @@ void HidListener::WorkerThread() {
             if(cookie->type == GenericEvent && cookie->extension == m_xiOpcode) {
                 if(cookie->evtype == XI_RawKeyPress || cookie->evtype == XI_RawKeyRelease) {
                     XIRawEvent* rawEvent = (XIRawEvent*)cookie->data;
-                    int winKey = ToWinKey(rawEvent->detail);
-                    if(winKey != 0) {
-                        KeyboardEventType eventType = KeyboardEventType::KeyDown;
 
-                        if(cookie->evtype == XI_RawKeyRelease) {
-                            eventType = KeyboardEventType::KeyUp;
-                        }
+                    GdkDisplay* gdkDisplay = gdk_display_get_default();
+                    GdkKeymap* gdkKeymap = gdk_keymap_get_for_display(gdkDisplay);
 
-                        KeyboardEvent* keyboardEvent = new KeyboardEvent;
-                        keyboardEvent->eventType =eventType;
-                        keyboardEvent->vkCode = winKey;
-                        keyboardEvent->scanCode = 0;
-                        NotifyDart(keyboardListenerPort, keyboardEvent);
+                    GdkKeymapKey* keys;
+                    guint* keyVals;
+                    gint nEntries;
+                    if (!gdk_keymap_get_entries_for_keycode(gdkKeymap, rawEvent->detail, &keys, &keyVals, &nEntries)) {
+                        return;
                     }
+
+                    LinuxKeyboardEvent* keyboardEvent = new LinuxKeyboardEvent;
+                    
+                    if (cookie->evtype == XI_RawKeyPress) {
+                        keyboardEvent->eventType = LinuxKeyboardEventType::LKE_KeyDown;
+                    } else {
+                        keyboardEvent->eventType = LinuxKeyboardEventType::LKE_KeyUp;
+                    }
+
+                    keyboardEvent->unicodeScalarValues = gdk_keyval_to_unicode(keyVals[0]);
+                    keyboardEvent->keyCode = rawEvent->detail;
+                    keyboardEvent->scanCode = keyboardEvent->keyCode - KEYCODE_OFFSET;
+
+                    g_free(keys);
+                    g_free(keyVals);
+
+                    NotifyDart(keyboardListenerPort, keyboardEvent);
                 } else if (cookie->evtype == XI_RawButtonPress || cookie->evtype == XI_RawButtonRelease || cookie->evtype == XI_RawMotion) {
                     XIRawEvent* rawEvent = (XIRawEvent*)cookie->data;
 
@@ -160,22 +179,26 @@ void HidListener::WorkerThread() {
     }
 }
 
-bool SetKeyboardListener(Dart_Port port) {
+extern "C" {
+
+FLUTTER_PLUGIN_EXPORT bool SetKeyboardListener(Dart_Port port) {
     if(HidListener::Get() == nullptr) return false;
     keyboardListenerPort = port;
     return true;
 }
 
-bool SetMouseListener(Dart_Port port) {
+FLUTTER_PLUGIN_EXPORT bool SetMouseListener(Dart_Port port) {
     if(HidListener::Get() == nullptr) return false;
     mouseListenerPort = port;
     return true;
 }
 
-void InitializeDartAPI(void* data) {
+FLUTTER_PLUGIN_EXPORT void InitializeDartAPI(void* data) {
     Dart_InitializeApiDL(data);
 }
 
-bool InitializeListeners() {
+FLUTTER_PLUGIN_EXPORT bool InitializeListeners() {
     return true;
+}
+
 }
