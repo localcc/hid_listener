@@ -1,3 +1,7 @@
+## 2.0.1
+
+Fixed non-ascii keys on linux
+
 ## 2.0.0
 
 Keyboard events are now platform-aware and no longer require a correct remapping table in the backend to work properly.
