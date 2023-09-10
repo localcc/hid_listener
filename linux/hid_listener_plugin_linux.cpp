@@ -121,7 +121,7 @@ void HidListener::WorkerThread() {
                     }
 
                     keyboardEvent->unicodeScalarValues = gdk_keyval_to_unicode(keyVals[0]);
-                    keyboardEvent->keyCode = rawEvent->detail;
+                    keyboardEvent->keyCode = keyVals[0];
                     keyboardEvent->scanCode = keyboardEvent->keyCode - KEYCODE_OFFSET;
 
                     g_free(keys);
