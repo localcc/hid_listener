@@ -64,13 +64,13 @@ abstract class HidListenerBackend {
 
   bool doInit() {
     const MethodChannel pluginChannel = MethodChannel("hid_listener");
-    pluginChannel.invokeMapMethod("Initialize");
+    pluginChannel.invokeMethod("Initialize");
     return initialize();
   }
 
   void doDispose() {
     const MethodChannel pluginChannel = MethodChannel("hid_listener");
-    pluginChannel.invokeMapMethod("Dispose");
+    pluginChannel.invokeMethod("Dispose");
   }
 
   bool initialize();

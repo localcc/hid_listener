@@ -15,7 +15,7 @@
 #include <include/hid_listener/hid_listener_plugin_windows.h>
 
 namespace hid_listener {
-
+HidListener listener;
 // static
 void HidListenerPlugin::RegisterWithRegistrar(
     flutter::PluginRegistrarWindows *registrar) {
@@ -37,7 +37,6 @@ void HidListenerPlugin::RegisterWithRegistrar(
 HidListenerPlugin::HidListenerPlugin() {}
 
 HidListenerPlugin::~HidListenerPlugin() {}
-static HidListener listener;
 void HidListenerPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue> &method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
@@ -54,7 +53,6 @@ void HidListenerPlugin::HandleMethodCall(
     result->Success(flutter::EncodableValue(version_stream.str()));
   }
   else if (method_call.method_name().compare("Initialize") == 0) {
-      listener = HidListener();
       printf("HidListenerPlugin::HandleMethodCall: Initialize\n");
   }
   else if (method_call.method_name().compare("Dispose") == 0) {

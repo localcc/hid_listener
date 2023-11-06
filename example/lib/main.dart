@@ -14,13 +14,14 @@ void mouseListener(MouseEvent event) {
 var registerResult = "";
 
 void main() {
-  if (!getListenerBackend()!.doInit()) {
-    print("Failed to initialize listener backend");
+  bool initialized = getListenerBackend()!.doInit();
+  if (!initialized) {
+    registerResult = "Failed to initialize listener backend";
+  } else {
+    getListenerBackend()!.addKeyboardListener(listener);
+    getListenerBackend()!.addMouseListener(mouseListener);
+    registerResult = "Initialized listener backend";
   }
-
-  getListenerBackend()!.addKeyboardListener(listener);
-  getListenerBackend()!.addMouseListener(mouseListener);
-
   runApp(const MyApp());
 }
 
