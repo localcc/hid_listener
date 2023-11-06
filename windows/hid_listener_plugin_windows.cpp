@@ -80,20 +80,20 @@ static LRESULT MouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
 
 #if defined(__cplusplus)
 
-HidListener* HidListener::listenerInstance = nullptr;
+HidListener* HidListener::ListenerInstance = nullptr;
 
 HidListener::HidListener() {
     m_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, NULL, NULL);
 	m_mouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseProc, NULL, NULL);
 
-	listenerInstance = this;
+	ListenerInstance = this;
 }
 
 HidListener::~HidListener() {
 	UnhookWindowsHookEx(m_keyboardHook);
 	UnhookWindowsHookEx(m_mouseHook);
 
-	listenerInstance = nullptr;
+	ListenerInstance = nullptr;
 }
 
 #endif

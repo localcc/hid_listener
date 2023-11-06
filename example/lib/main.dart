@@ -14,7 +14,7 @@ void mouseListener(MouseEvent event) {
 var registerResult = "";
 
 void main() {
-  if (!getListenerBackend()!.initialize()) {
+  if (!getListenerBackend()!.doInit()) {
     print("Failed to initialize listener backend");
   }
 

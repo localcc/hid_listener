@@ -21,7 +21,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   // plugins.
   ::CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
-  HidListener listener;
+  // HidListener listener;
 
   flutter::DartProject project(L"data");
 
