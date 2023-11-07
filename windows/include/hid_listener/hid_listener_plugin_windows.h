@@ -11,19 +11,14 @@ extern "C"
 
 #if defined(__cplusplus)
 #include <Windows.h>
-	class HidListener
+	class FLUTTER_PLUGIN_EXPORT HidListener
 	{
 	public:
 		HidListener();
 		~HidListener();
-
-		static HidListener* Get() { return HidListener::ListenerInstance; }
-
 	private:
 		HHOOK m_keyboardHook;
 		HHOOK m_mouseHook;
-
-		static HidListener* ListenerInstance;
 	};
 #endif
 

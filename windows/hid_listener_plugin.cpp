@@ -12,10 +12,8 @@
 
 #include <memory>
 #include <sstream>
-#include <include/hid_listener/hid_listener_plugin_windows.h>
 
 namespace hid_listener {
-HidListener listener;
 // static
 void HidListenerPlugin::RegisterWithRegistrar(
     flutter::PluginRegistrarWindows *registrar) {
@@ -57,7 +55,6 @@ void HidListenerPlugin::HandleMethodCall(
   }
   else if (method_call.method_name().compare("Dispose") == 0) {
       printf("HidListenerPlugin::HandleMethodCall: Dispose\n");
-	  listener.~HidListener();
   }
   else {
     result->NotImplemented();
