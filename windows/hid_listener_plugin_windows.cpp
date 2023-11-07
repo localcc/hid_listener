@@ -79,33 +79,32 @@ static LRESULT MouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
 }
 
 #if defined(__cplusplus)
-
-HidListener* HidListener::listenerInstance = nullptr;
+HidListener* ListenerInstance = nullptr;
 
 HidListener::HidListener() {
     m_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, NULL, NULL);
 	m_mouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseProc, NULL, NULL);
 
-	listenerInstance = this;
+	ListenerInstance = this;
 }
 
 HidListener::~HidListener() {
 	UnhookWindowsHookEx(m_keyboardHook);
 	UnhookWindowsHookEx(m_mouseHook);
 
-	listenerInstance = nullptr;
+	ListenerInstance = nullptr;
 }
 
 #endif
 
 bool SetKeyboardListener(Dart_Port port) {
-	if(HidListener::Get() == nullptr) return false;
+	if(ListenerInstance == nullptr) return false;
 	keyboardListenerPort = port;
 	return true;
 }
 
 bool SetMouseListener(Dart_Port port) {
-	if(HidListener::Get() == nullptr) return false;
+	if(ListenerInstance == nullptr) return false;
 	mouseListenerPort = port;
 	return true;
 }

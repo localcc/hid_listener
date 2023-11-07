@@ -62,6 +62,17 @@ abstract class HidListenerBackend {
     mouseListeners.remove(listenerId);
   }
 
+  bool doInit() {
+    const MethodChannel pluginChannel = MethodChannel("hid_listener");
+    pluginChannel.invokeMethod("Initialize");
+    return initialize();
+  }
+
+  void doDispose() {
+    const MethodChannel pluginChannel = MethodChannel("hid_listener");
+    pluginChannel.invokeMethod("Dispose");
+  }
+
   bool initialize();
   bool registerKeyboard();
   bool registerMouse();
