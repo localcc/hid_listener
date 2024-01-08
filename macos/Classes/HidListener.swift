@@ -48,48 +48,50 @@ func keyboardEventCallback(
 func mediaEventCallback(
   proxy _: CGEventTapProxy, type _: CGEventType, event: CGEvent, _: UnsafeMutableRawPointer?
 ) -> Unmanaged<CGEvent>? {
-  if let nsEvent = NSEvent(cgEvent: event) {
-    let keyCode = (nsEvent.data1 & 0xFFFF_0000) >> 16
-    let keyDown = ((nsEvent.data1 & 0xFF00) >> 8) == 0xA
+  DispatchQueue.main.async {
+    if let nsEvent = NSEvent(cgEvent: event) {
+      let keyCode = (nsEvent.data1 & 0xFFFF_0000) >> 16
+      let keyDown = ((nsEvent.data1 & 0xFF00) >> 8) == 0xA
 
-    let mediaEventType: MacOsMediaEventType? = {
-      switch Int32(keyCode) {
-      case NX_KEYTYPE_PLAY: return MacOsMediaEventType.Play
-      case NX_KEYTYPE_PREVIOUS: return MacOsMediaEventType.Previous
-      case NX_KEYTYPE_NEXT: return MacOsMediaEventType.Next
-      case NX_KEYTYPE_REWIND: return MacOsMediaEventType.Rewind
-      case NX_KEYTYPE_FAST: return MacOsMediaEventType.Fast
-      case NX_KEYTYPE_MUTE: return MacOsMediaEventType.Mute
-      case NX_KEYTYPE_BRIGHTNESS_UP: return MacOsMediaEventType.BrightnessUp
-      case NX_KEYTYPE_BRIGHTNESS_DOWN: return MacOsMediaEventType.BrightnessDown
-      case NX_KEYTYPE_SOUND_UP: return MacOsMediaEventType.VolumeUp
-      case NX_KEYTYPE_SOUND_DOWN: return MacOsMediaEventType.VolumeDown
-      default: return nil
-      }
-    }()
-
-    if mediaEventType != nil {
-      let eventType = {
-        switch keyDown {
-        case true: return MacOsKeyboardEventType.KeyDown
-        case false: return MacOsKeyboardEventType.KeyUp
+      let mediaEventType: MacOsMediaEventType? = {
+        switch Int32(keyCode) {
+        case NX_KEYTYPE_PLAY: return MacOsMediaEventType.Play
+        case NX_KEYTYPE_PREVIOUS: return MacOsMediaEventType.Previous
+        case NX_KEYTYPE_NEXT: return MacOsMediaEventType.Next
+        case NX_KEYTYPE_REWIND: return MacOsMediaEventType.Rewind
+        case NX_KEYTYPE_FAST: return MacOsMediaEventType.Fast
+        case NX_KEYTYPE_MUTE: return MacOsMediaEventType.Mute
+        case NX_KEYTYPE_BRIGHTNESS_UP: return MacOsMediaEventType.BrightnessUp
+        case NX_KEYTYPE_BRIGHTNESS_DOWN: return MacOsMediaEventType.BrightnessDown
+        case NX_KEYTYPE_SOUND_UP: return MacOsMediaEventType.VolumeUp
+        case NX_KEYTYPE_SOUND_DOWN: return MacOsMediaEventType.VolumeDown
+        default: return nil
         }
       }()
 
-      let keyboardEvent = Unmanaged<MacOsKeyboardEvent>.passRetained(MacOsKeyboardEvent(
-        eventType: eventType,
-        characters: " ",
-        charactersIgnoringModifiers: " ",
-        keyCode: 0,
-        modifiers: 0,
-        isMedia: true,
-        mediaEventType: mediaEventType!
-      ))
+      if mediaEventType != nil {
+        let eventType = {
+          switch keyDown {
+          case true: return MacOsKeyboardEventType.KeyDown
+          case false: return MacOsKeyboardEventType.KeyUp
+          }
+        }()
 
-      let pointerEvent = UnsafeMutablePointer<MacOsKeyboardEvent>.allocate(capacity: 1)
-      pointerEvent.initialize(to: keyboardEvent.takeRetainedValue())
+        let keyboardEvent = Unmanaged<MacOsKeyboardEvent>.passRetained(MacOsKeyboardEvent(
+          eventType: eventType,
+          characters: " ",
+          charactersIgnoringModifiers: " ",
+          keyCode: 0,
+          modifiers: 0,
+          isMedia: true,
+          mediaEventType: mediaEventType!
+        ))
 
-      notifyDart(port: keyboardListenerPort, data: pointerEvent)
+        let pointerEvent = UnsafeMutablePointer<MacOsKeyboardEvent>.allocate(capacity: 1)
+        pointerEvent.initialize(to: keyboardEvent.takeRetainedValue())
+
+        notifyDart(port: keyboardListenerPort, data: pointerEvent)
+      }
     }
   }
 
@@ -99,36 +101,38 @@ func mediaEventCallback(
 func mouseEventCallback(
   proxy _: CGEventTapProxy, type: CGEventType, event: CGEvent, _: UnsafeMutableRawPointer?
 ) -> Unmanaged<CGEvent>? {
-  let mouseLoc = NSEvent.mouseLocation
-  let mouseEvent = UnsafeMutablePointer<MouseEvent>.allocate(capacity: 1)
+  DispatchQueue.main.async {
+    let mouseLoc = NSEvent.mouseLocation
+    let mouseEvent = UnsafeMutablePointer<MouseEvent>.allocate(capacity: 1)
 
-  mouseEvent.pointee.x = mouseLoc.x
-  mouseEvent.pointee.y = mouseLoc.y
+    mouseEvent.pointee.x = mouseLoc.x
+    mouseEvent.pointee.y = mouseLoc.y
 
-  if type == .leftMouseDown {
-    mouseEvent.pointee.eventType = MouseEventType(0)
-  } else if type == .leftMouseUp {
-    mouseEvent.pointee.eventType = MouseEventType(1)
-  } else if type == .rightMouseDown {
-    mouseEvent.pointee.eventType = MouseEventType(2)
-  } else if type == .rightMouseUp {
-    mouseEvent.pointee.eventType = MouseEventType(3)
-  } else if type == .mouseMoved || type == .leftMouseDragged || type == .rightMouseDragged {
-    mouseEvent.pointee.eventType = MouseEventType(4)
-  } else if type == .scrollWheel {
-    let verticalScroll = event.getIntegerValueField(.scrollWheelEventDeltaAxis1)
-    let horizontalScroll = event.getIntegerValueField(.scrollWheelEventDeltaAxis2)
+    if type == .leftMouseDown {
+      mouseEvent.pointee.eventType = MouseEventType(0)
+    } else if type == .leftMouseUp {
+      mouseEvent.pointee.eventType = MouseEventType(1)
+    } else if type == .rightMouseDown {
+      mouseEvent.pointee.eventType = MouseEventType(2)
+    } else if type == .rightMouseUp {
+      mouseEvent.pointee.eventType = MouseEventType(3)
+    } else if type == .mouseMoved || type == .leftMouseDragged || type == .rightMouseDragged {
+      mouseEvent.pointee.eventType = MouseEventType(4)
+    } else if type == .scrollWheel {
+      let verticalScroll = event.getIntegerValueField(.scrollWheelEventDeltaAxis1)
+      let horizontalScroll = event.getIntegerValueField(.scrollWheelEventDeltaAxis2)
 
-    if verticalScroll != 0 {
-      mouseEvent.pointee.eventType = MouseEventType(5)
-      mouseEvent.pointee.wheelDelta = verticalScroll
-    } else if horizontalScroll != 0 {
-      mouseEvent.pointee.eventType = MouseEventType(6)
-      mouseEvent.pointee.wheelDelta = horizontalScroll
+      if verticalScroll != 0 {
+        mouseEvent.pointee.eventType = MouseEventType(5)
+        mouseEvent.pointee.wheelDelta = verticalScroll
+      } else if horizontalScroll != 0 {
+        mouseEvent.pointee.eventType = MouseEventType(6)
+        mouseEvent.pointee.wheelDelta = horizontalScroll
+      }
     }
-  }
 
-  notifyDart(port: mouseListenerPort, data: mouseEvent)
+    notifyDart(port: mouseListenerPort, data: mouseEvent)
+  }
 
   return Unmanaged.passRetained(event)
 }
